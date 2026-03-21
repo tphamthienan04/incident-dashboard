@@ -1,120 +1,77 @@
-// 1. URL file JSON (Chứa mảng các dòng CSV)
 const jsonUrl = "https://stincidentprod22648859.blob.core.windows.net/public-assets/dashboard-summary.json";
 
 let allRecords = [];
+let filteredRecords = [];
+let displayLimit = 10;
 let myDoughnutChart, myLineChart;
 
-// Đăng ký Plugin hiển thị số liệu trên biểu đồ
 Chart.register(ChartDataLabels);
 
 async function loadDashboardData() {
     try {
         const response = await fetch(jsonUrl);
-        if (!response.ok) throw new Error("Không thể tải dữ liệu từ server.");
         const rawData = await response.json();
 
-        // 1. LÀM SẠCH DỮ LIỆU: Chỉ lấy các dòng bắt đầu bằng 'INC'
-        const cleanData = rawData.filter(line => line && line.startsWith('INC'));
-
-        // 2. MAPPING: Chuyển chuỗi CSV thành Object dựa trên file sample_incidents.csv
-        allRecords = cleanData.map(line => {
+        // 1. Map data & Clean whitespace
+        allRecords = rawData.filter(line => line && line.startsWith('INC')).map(line => {
             const cols = line.split(',');
             return {
-                id: cols[0],          // Incident ID
-                date: cols[1],        // Reported Date
-                suburb: cols[2],      // Suburb
-                category: cols[3],    // Category
-                status: cols[4]?.trim() // Status (Xử lý khoảng trắng thừa)
+                id: cols[0]?.trim(),
+                date: cols[1]?.trim(),
+                suburb: cols[2]?.trim(),
+                category: cols[3]?.trim(),
+                status: cols[4]?.trim() || ""
             };
         });
 
-        // 3. CẬP NHẬT CÁC CHỈ SỐ KPI
-        const total = allRecords.length;
-        const resolved = allRecords.filter(r => r.status === 'Resolved').length;
-        const rate = total > 0 ? ((resolved / total) * 100).toFixed(1) : 0;
+        filteredRecords = [...allRecords]; // Copy original data
 
-        document.getElementById("totalCases").innerText = total;
-        document.getElementById("resolvedCases").innerText = resolved;
-        document.getElementById("resolutionRate").innerText = rate + "%";
-        document.getElementById("lastUpdated").innerText = new Date().toLocaleString();
-
-        // 4. VẼ BIỂU ĐỒ VÀ BẢNG
+        updateKPIs(allRecords);
         renderCharts(allRecords);
-        renderTable(allRecords);
+        renderTable();
+
+        // 2. Gán sự kiện bộ lọc (Đảm bảo gán sau khi dữ liệu đã tải xong)
+        initFilters();
 
     } catch (error) {
-        console.error("Lỗi:", error);
-        document.getElementById("lastUpdated").innerText = "Lỗi khi tải dữ liệu.";
+        console.error("Error:", error);
     }
 }
 
-function renderCharts(data) {
-    // Thống kê theo Category
-    const categoryCounts = {};
-    data.forEach(r => { if(r.category) categoryCounts[r.category] = (categoryCounts[r.category] || 0) + 1; });
+// Hàm khởi tạo bộ lọc
+function initFilters() {
+    const suburbInput = document.getElementById("filterSuburb");
+    const dateInput = document.getElementById("filterDate");
 
-    // Thống kê theo Ngày (để vẽ Line Chart)
-    const dateCounts = {};
-    data.forEach(r => { if(r.date) dateCounts[r.date] = (dateCounts[r.date] || 0) + 1; });
-    const sortedDates = Object.keys(dateCounts).sort();
-    const dateValues = sortedDates.map(d => dateCounts[d]);
-
-    if (myDoughnutChart) myDoughnutChart.destroy();
-    if (myLineChart) myLineChart.destroy();
-
-    // DOUGHNUT CHART (Tỷ lệ phần trăm sự cố)
-    const ctxDoughnut = document.getElementById('doughnutChart').getContext('2d');
-    myDoughnutChart = new Chart(ctxDoughnut, {
-        type: 'doughnut',
-        data: {
-            labels: Object.keys(categoryCounts),
-            datasets: [{
-                data: Object.values(categoryCounts),
-                backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF', '#FF9F40']
-            }]
-        },
-        options: {
-            plugins: {
-                legend: { position: 'right' },
-                datalabels: { 
-                    formatter: (value, ctx) => {
-                        // FIX: Lấy dữ liệu an toàn để tính %
-                        const dataPoints = ctx.chart.data.datasets[0].data;
-                        const sum = dataPoints.reduce((a, b) => a + b, 0);
-                        return (value * 100 / sum).toFixed(1) + "%";
-                    },
-                    color: '#fff',
-                    font: { weight: 'bold' }
-                }
-            }
-        }
-    });
-
-    // LINE CHART (Xu hướng theo thời gian)
-    const ctxLine = document.getElementById('lineChart').getContext('2d');
-    myLineChart = new Chart(ctxLine, {
-        type: 'line',
-        data: {
-            labels: sortedDates,
-            datasets: [{
-                label: 'Sự cố theo ngày',
-                data: dateValues,
-                borderColor: '#004b87',
-                backgroundColor: 'rgba(0, 75, 135, 0.1)',
-                fill: true,
-                tension: 0.3
-            }]
-        },
-        options: {
-            plugins: { datalabels: { display: false } },
-            scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } }
-        }
-    });
+    suburbInput.addEventListener("input", filterData);
+    dateInput.addEventListener("change", filterData);
 }
 
-function renderTable(data) {
+function filterData() {
+    const suburbValue = document.getElementById("filterSuburb").value.toLowerCase().trim();
+    const dateValue = document.getElementById("filterDate").value; // Format: YYYY-MM-DD
+
+    filteredRecords = allRecords.filter(r => {
+        // Kiểm tra Suburb: nếu ô trống thì coi như khớp (true)
+        const matchSuburb = suburbValue === "" || (r.suburb && r.suburb.toLowerCase().includes(suburbValue));
+        
+        // Kiểm tra Date: So sánh chuỗi ngày trực tiếp
+        const matchDate = dateValue === "" || r.date === dateValue;
+
+        return matchSuburb && matchDate;
+    });
+
+    displayLimit = 10; // Reset về 10 dòng mỗi khi lọc
+    renderTable();
+}
+
+function renderTable() {
     const tbody = document.getElementById("tableBody");
-    tbody.innerHTML = data.map(r => `
+    const loadMoreBtn = document.getElementById("loadMoreBtn");
+    
+    const dataToShow = filteredRecords.slice(0, displayLimit);
+    
+    tbody.innerHTML = dataToShow.map(r => `
         <tr>
             <td>${r.id}</td>
             <td>${r.date}</td>
@@ -123,7 +80,59 @@ function renderTable(data) {
             <td><span class="status-${r.status.toLowerCase()}">${r.status}</span></td>
         </tr>
     `).join('');
+
+    // Hiện/Ẩn nút Load More
+    if (displayLimit >= filteredRecords.length) {
+        loadMoreBtn.style.display = "none";
+    } else {
+        loadMoreBtn.style.display = "inline-block";
+    }
 }
 
-// KHỞI CHẠY
+// Sự kiện nút Load More
+document.getElementById("loadMoreBtn").onclick = function() {
+    displayLimit += 10;
+    renderTable();
+};
+
 window.onload = loadDashboardData;
+
+// --- PHẦN VẼ BIỂU ĐỒ (Giữ nguyên như bản trước) ---
+function renderCharts(data) {
+    const categoryCounts = {};
+    data.forEach(r => { if(r.category) categoryCounts[r.category] = (categoryCounts[r.category] || 0) + 1; });
+    const dateCounts = {};
+    data.forEach(r => { if(r.date) dateCounts[r.date] = (dateCounts[r.date] || 0) + 1; });
+    const sortedDates = Object.keys(dateCounts).sort();
+    
+    if (myDoughnutChart) myDoughnutChart.destroy();
+    if (myLineChart) myLineChart.destroy();
+
+    const ctxD = document.getElementById('doughnutChart').getContext('2d');
+    myDoughnutChart = new Chart(ctxD, {
+        type: 'doughnut',
+        data: {
+            labels: Object.keys(categoryCounts),
+            datasets: [{ data: Object.values(categoryCounts), backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF', '#FF9F40'] }]
+        },
+        options: { plugins: { datalabels: { formatter: (v, c) => {
+            const sum = c.chart.data.datasets[0].data.reduce((a, b) => a + b, 0);
+            return (v * 100 / sum).toFixed(1) + "%";
+        }, color: '#fff' } } }
+    });
+
+    const ctxL = document.getElementById('lineChart').getContext('2d');
+    myLineChart = new Chart(ctxL, {
+        type: 'line',
+        data: { labels: sortedDates, datasets: [{ label: 'Cases', data: sortedDates.map(d => dateCounts[d]), borderColor: '#004b87', fill: false }] },
+        options: { plugins: { datalabels: { display: false } } }
+    });
+}
+
+function updateKPIs(data) {
+    const total = data.length;
+    const resolved = data.filter(r => r.status.toLowerCase() === 'resolved').length;
+    document.getElementById("totalCases").innerText = total;
+    document.getElementById("resolvedCases").innerText = resolved;
+    document.getElementById("resolutionRate").innerText = total > 0 ? ((resolved/total)*100).toFixed(1) + "%" : "0%";
+}
