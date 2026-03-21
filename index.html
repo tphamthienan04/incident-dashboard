@@ -5,38 +5,48 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Council Incident Dashboard</title>
     <link rel="stylesheet" href="style.css">
-    <!-- Library Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
     <header>
         <h1>Community Service Incidents Dashboard</h1>
-        <!-- Khu vực Timestamp: Hiển thị thời gian cập nhật cuối cùng [1] -->
         <p id="timestamp">Last Updated: <span id="lastUpdated">Loading...</span></p>
     </header>
 
     <main>
-        <!-- KPI zone: two columns for total [1] -->
+        <!-- KPI -->
         <section class="kpi-container">
             <div class="kpi-card">
-                <h3>Total Graffiti</h3>
-                <p id="graffitiCount" class="kpi-value">0</p>
+                <h3>Total Cases</h3>
+                <p id="totalCases" class="kpi-value">0</p>
             </div>
             <div class="kpi-card">
-                <h3>Total Potholes</h3>
-                <p id="potholeCount" class="kpi-value">0</p>
+                <h3>Top Suburb (Most Issues)</h3>
+                <p id="topSuburb" class="kpi-value">Loading...</p>
             </div>
         </section>
 
-        <!-- Chart zone: canvas to draw chart [1] -->
-        <section class="chart-section">
-            <h2>Incident Distribution</h2>
-            <canvas id="incidentChart"></canvas>
+        <!-- 2 Charts (Doughnut & Line) -->
+        <section class="charts-wrapper">
+            <div class="chart-card">
+                <h2>Incident Categories (%)</h2>
+                <canvas id="doughnutChart"></canvas>
+            </div>
+            <div class="chart-card">
+                <h2>Cases Trend (March)</h2>
+                <canvas id="lineChart"></canvas>
+            </div>
         </section>
 
-        <!-- Table zone: list of problems [1] -->
+        <!-- Table and Filter -->
         <section class="table-section">
-            <h2>Recent Incident Records</h2>
+            <div class="table-header">
+                <h2>Recent Incident Records</h2>
+                <div class="filters">
+                    <input type="text" id="filterSuburb" placeholder="Search by Suburb...">
+                    <input type="date" id="filterDate">
+                </div>
+            </div>
             <table id="incidentTable">
                 <thead>
                     <tr>
@@ -48,13 +58,12 @@
                     </tr>
                 </thead>
                 <tbody id="tableBody">
-                    <!-- Data script.js will be added automatically -->
+                    <!-- Dữ liệu JS sẽ đổ vào đây -->
                 </tbody>
             </table>
         </section>
     </main>
 
-    <!-- Syn file logic JavaScript -->
     <script src="script.js"></script>
 </body>
 </html>
