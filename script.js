@@ -142,7 +142,14 @@ function renderCharts(data) {
         type: 'doughnut',
         data: {
             labels: Object.keys(categoryCounts),
-            datasets: [{ data: Object.values(categoryCounts), backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF', '#FF9F40'] }]
+            datasets: [{ data: Object.values(categoryCounts), backgroundColor: 
+                ['#e6194b', // 1. Đỏ (Dành cho Graffiti)
+                 '#3cb44b', // 2. Xanh lá (Dành cho Tree Down)
+                 '#4363d8', // 3. Xanh dương
+                 '#ffe119', // 4. Vàng
+                 '#f58231', // 5. Cam
+                 '#911eb4', // 6. Tím
+                 '#42d4f4', // 7. Xanh lơ] }]
         },
         options: { 
             plugins: { 
