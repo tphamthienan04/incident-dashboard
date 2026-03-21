@@ -5,7 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Council Incident Dashboard</title>
     <link rel="stylesheet" href="style.css">
+    <!-- Load Chart.js and DataLabels Plugin for percentage display -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
 </head>
 <body>
     <header>
@@ -14,19 +16,23 @@
     </header>
 
     <main>
-        <!-- KPI -->
+        <!-- KPI SECTION: 3 Metrics -->
         <section class="kpi-container">
             <div class="kpi-card">
                 <h3>Total Cases</h3>
                 <p id="totalCases" class="kpi-value">0</p>
             </div>
             <div class="kpi-card">
-                <h3>Top Suburb (Most Issues)</h3>
-                <p id="topSuburb" class="kpi-value">Loading...</p>
+                <h3>Resolved Cases</h3>
+                <p id="resolvedCases" class="kpi-value">0</p>
+            </div>
+            <div class="kpi-card">
+                <h3>Resolution Rate</h3>
+                <p id="resolutionRate" class="kpi-value">0%</p>
             </div>
         </section>
 
-        <!-- 2 Charts (Doughnut & Line) -->
+        <!-- CHARTS SECTION -->
         <section class="charts-wrapper">
             <div class="chart-card">
                 <h2>Incident Categories (%)</h2>
@@ -38,7 +44,7 @@
             </div>
         </section>
 
-        <!-- Table and Filter -->
+        <!-- DATA TABLE & FILTERS SECTION -->
         <section class="table-section">
             <div class="table-header">
                 <h2>Recent Incident Records</h2>
@@ -58,7 +64,7 @@
                     </tr>
                 </thead>
                 <tbody id="tableBody">
-                    <!-- Dữ liệu JS sẽ đổ vào đây -->
+                    <!-- Data will be populated by script.js -->
                 </tbody>
             </table>
         </section>
