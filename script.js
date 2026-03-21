@@ -16,20 +16,20 @@ async function loadDashboardData() {
         // 1. DATA CLEANING: Remove header and empty lines
         const cleanData = rawData.filter(line => line && line.startsWith('INC'));
 
-        // 2. MAP DATA: Convert CSV strings into Objects (Đã fix lỗi chỉ số mảng)
+        // 2. MAP DATA: Convert CSV strings into Objects (Fixed array indexes)
         allRecords = cleanData.map(line => {
             const cols = line.split(',');
             return {
-                id: cols,          // Column 0: INC...
-                date: cols[1],        // Column 1: YYYY-MM-DD
-                suburb: cols[2],      // Column 2: Suburb
-                category: cols[3],    // Column 3: Category
-                status: cols[4]       // Column 4: Status
+                id: cols,          // Column 0: Incident ID
+                date: cols[2],        // Column 1: Date
+                suburb: cols[3],      // Column 2: Suburb
+                category: cols[4],    // Column 3: Category
+                status: cols[5]       // Column 4: Status
             };
         });
 
         // 3. CALCULATE KPIs
-        const total = allRecords.length; // Sẽ đếm chính xác 60 records
+        const total = allRecords.length; // Will correctly count 60 records
         const resolved = allRecords.filter(r => r.status && r.status.trim() === 'Resolved').length;
         const rate = total > 0 ? ((resolved / total) * 100).toFixed(1) : 0;
 
@@ -82,7 +82,6 @@ function renderCharts(data) {
             plugins: {
                 legend: { position: 'right' },
                 datalabels: { 
-                    // ĐÃ FIX LỖI CRASH Ở ĐÂY: Thêm  và dùng reduce để tính tổng an toàn
                     formatter: (value, ctx) => {
                         let dataArr = ctx.chart.data.datasets.data; 
                         let sum = dataArr.reduce((a, b) => a + b, 0);
@@ -112,7 +111,7 @@ function renderCharts(data) {
             }]
         },
         options: {
-            plugins: { datalabels: { display: false } }, // Tắt phần trăm trên Line Chart
+            plugins: { datalabels: { display: false } }, // Disable percentages on Line Chart
             scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } }
         }
     });
@@ -123,7 +122,7 @@ function renderTable(data) {
     const tbody = document.getElementById("tableBody");
     tbody.innerHTML = "";
     data.forEach(r => {
-        if(!r.status) return; // Bỏ qua nếu dòng dữ liệu trống
+        if(!r.status) return; // Skip empty rows
         tbody.innerHTML += `<tr>
             <td>${r.id}</td>
             <td>${r.date}</td>
