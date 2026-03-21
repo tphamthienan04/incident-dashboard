@@ -1,0 +1,112 @@
+/* Cài đặt chung cho toàn bộ trang web */
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f4f7f6; /* Màu nền xám nhạt dịu mắt */
+    margin: 0;
+    padding: 0;
+    color: #333;
+}
+
+/* Phần Header (Tiêu đề trang) */
+header {
+    background-color: #004b87; /* Màu xanh biển đậm chuyên nghiệp */
+    color: white;
+    padding: 20px 0;
+    text-align: center;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+header h1 {
+    margin: 0 0 10px 0;
+    font-size: 24px;
+}
+
+#timestamp {
+    margin: 0;
+    font-size: 14px;
+    font-style: italic;
+    color: #d1e8ff;
+}
+
+/* Container chính của Dashboard */
+main {
+    max-width: 1200px; /* Giới hạn chiều rộng để giao diện không bị kéo giãn quá mức */
+    margin: 30px auto; /* Căn giữa toàn bộ trang */
+    padding: 0 20px;
+}
+
+/* KHU VỰC 1: KPIs sử dụng FLEXBOX */
+.kpi-container {
+    display: flex; /* Kích hoạt Flexbox */
+    justify-content: space-between; /* Đẩy 2 thẻ ra hai bên */
+    gap: 20px; /* Khoảng cách giữa 2 thẻ */
+    margin-bottom: 30px;
+}
+
+/* Định dạng từng thẻ KPI (Card) */
+.kpi-card {
+    flex: 1; /* Chiếm đều không gian */
+    background-color: white;
+    padding: 25px;
+    border-radius: 8px; /* Bo góc mềm mại */
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05); /* Đổ bóng nhẹ tạo hiệu ứng nổi */
+    text-align: center;
+    border-top: 4px solid #004b87; /* Đường viền trang trí phía trên */
+}
+
+.kpi-card h3 {
+    margin: 0;
+    font-size: 18px;
+    color: #666;
+}
+
+.kpi-value {
+    font-size: 40px;
+    font-weight: bold;
+    color: #004b87;
+    margin: 15px 0 0 0;
+}
+
+/* KHU VỰC 2 & 3: Biểu đồ và Bảng */
+.chart-section, .table-section {
+    background-color: white;
+    padding: 25px;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    margin-bottom: 30px;
+}
+
+h2 {
+    margin-top: 0;
+    color: #004b87;
+    border-bottom: 2px solid #eee;
+    padding-bottom: 10px;
+}
+
+/* Định dạng Bảng dữ liệu (Table) */
+table {
+    width: 100%;
+    border-collapse: collapse; /* Xóa khoảng trống giữa các viền */
+    margin-top: 15px;
+}
+
+th, td {
+    padding: 12px 15px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+}
+
+th {
+    background-color: #f8f9fa; /* Màu nền xám nhạt cho tiêu đề cột */
+    font-weight: bold;
+    color: #333;
+}
+
+/* Hiệu ứng sọc ngựa vằn cho bảng dễ đọc hơn */
+tr:nth-child(even) {
+    background-color: #fcfcfc;
+}
+
+tr:hover {
+    background-color: #f1f1f1; /* Hiệu ứng đổi màu khi đưa chuột vào dòng */
+}
