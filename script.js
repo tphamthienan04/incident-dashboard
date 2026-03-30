@@ -9,14 +9,14 @@ Chart.register(ChartDataLabels);
 
 async function loadDashboardData() {
     try {
-        // ƯU VIỆT 3: Cập nhật thời gian ngay khi bắt đầu (không để Loading chờ)
+        // 
         updateTimestamp();
 
         const response = await fetch(jsonUrl);
         if (!response.ok) throw new Error("Failed to connect to data source");
         const rawData = await response.json();
 
-        // Làm sạch và Map dữ liệu
+        // 
         allRecords = rawData.filter(line => line && line.startsWith('INC')).map(line => {
             const cols = line.split(',');
             return {
@@ -28,18 +28,18 @@ async function loadDashboardData() {
             };
         });
 
-        // ƯU VIỆT 1: Sắp xếp ngày mới nhất lên đầu (Descending Order)
+        // 
         allRecords.sort((a, b) => new Date(b.date) - new Date(a.date));
 
-        // Khởi tạo dữ liệu hiển thị ban đầu
+        //
         filteredRecords = [...allRecords];
 
-        // Cập nhật giao diện
+        // 
         updateKPIs(allRecords);
         renderCharts(allRecords);
         renderTable();
         
-        // Kích hoạt bộ lọc
+        // 
         initFilters();
 
     } catch (error) {
@@ -69,7 +69,7 @@ function filterData() {
         return matchSuburb && matchDate;
     });
 
-    displayLimit = 10; // Reset về 10 dòng đầu của kết quả lọc
+    displayLimit = 10; // 
     renderTable();
 }
 
@@ -77,7 +77,7 @@ function renderTable() {
     const tbody = document.getElementById("tableBody");
     const loadMoreBtn = document.getElementById("loadMoreBtn");
     
-    // ƯU VIỆT 2: Hiển thị "No data shown" nếu không có kết quả
+    // 
     if (filteredRecords.length === 0) {
         tbody.innerHTML = `
             <tr>
@@ -101,13 +101,13 @@ function renderTable() {
         </tr>
     `).join('');
 
-    // Xử lý nút Load More
+    // 
     if (loadMoreBtn) {
         loadMoreBtn.style.display = (displayLimit >= filteredRecords.length) ? "none" : "inline-block";
     }
 }
 
-// Gán sự kiện cho nút Load More
+// 
 const btn = document.getElementById("loadMoreBtn");
 if (btn) {
     btn.onclick = function() {
@@ -118,7 +118,7 @@ if (btn) {
 
 window.onload = loadDashboardData;
 
-// --- PHẦN KPI & BIỂU ĐỒ (Đã fix lỗi treo script) ---
+// 
 function updateKPIs(data) {
     const total = data.length;
     const resolved = data.filter(r => r.status.toLowerCase() === 'resolved').length;
